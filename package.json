@@ -1,7 +1,7 @@
 {
   "name": "mirage-browser",
   "productName": "Mirage Browser",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "幻境浏览器 — 多环境隔离、指纹伪造、代理集成的浏览器管理工具",
   "main": ".vite/build/main.js",
   "private": true,
