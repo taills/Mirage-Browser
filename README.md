@@ -75,7 +75,7 @@
 支持**随机生成**或**手动指定**每项参数，内置 16 个城市地理坐标预设。
 
 ### 🌐 代理集成
-- **直连代理**：为每个环境单独配置 HTTP/SOCKS 代理地址
+- **直连代理**：为每个环境独立指定 HTTP/SOCKS 代理地址，可精准对接 Burp Suite、mitmproxy 等抓包工具，实现对特定环境的流量拦截与分析，满足渗透测试全流程需求
 - **Mihomo 订阅代理**：
   - 内置 Mihomo（原 Clash Meta）内核下载与管理
   - 支持导入订阅链接或本地 YAML 配置文件
@@ -239,7 +239,7 @@ git push origin v1.0.0
 支援**隨機產生**或**手動指定**每項參數，內建 16 個城市地理坐標預設。
 
 ### 🌐 代理整合
-- **直連代理**：為每個環境單獨配置 HTTP/SOCKS 代理位址
+- **直連代理**：為每個環境獨立指定 HTTP/SOCKS 代理位址，可精準對接 Burp Suite、mitmproxy 等攔截工具，對特定環境進行流量截持與分析，滿足滲透測試全流程需求
 - **Mihomo 訂閱代理**：
   - 內建 Mihomo（原 Clash Meta）核心下載與管理
   - 支援匯入訂閱連結或本地 YAML 設定檔
@@ -403,7 +403,7 @@ Fingerprint override scripts are injected via Chrome DevTools Protocol (CDP) at 
 Every parameter supports **random generation** or **manual override**, with 16 built-in city geolocation presets.
 
 ### 🌐 Proxy Integration
-- **Direct proxy**: Configure a per-environment HTTP/SOCKS proxy address
+- **Direct proxy**: Assign a dedicated HTTP/SOCKS proxy per environment — seamlessly integrates with Burp Suite, mitmproxy, and other interception proxies for targeted traffic capture and analysis throughout the entire penetration testing workflow
 - **Mihomo subscription proxy**:
   - Built-in Mihomo (formerly Clash Meta) core download and lifecycle management
   - Import subscription URLs or local YAML config files
