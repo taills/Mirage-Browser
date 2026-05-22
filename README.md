@@ -25,6 +25,24 @@
 
 ---
 
+## 💾 为什么选 Windows XP 主题？
+
+那是一个拨号上网还要抢时间的年代。
+
+第一次坐在那台方正台式机前，屏幕上亮起了熟悉的蓝绿色桌面——那朵白云、那片绿草，Windows XP 默认壁纸《Bliss》。就是那一刻，我的计算机世界的大门悄悄打开了。
+
+后来，我开始学习「黑客技术」——那时候还不懂什么是渗透测试，只是痴迷于各种批处理脚本、网络扫描工具，以及 BBS 论坛上流传的各种神秘命令。每一次打开 `cmd.exe`，每一次看到光标在黑色窗口里闪烁，都觉得自己离某种更深的秘密近了一步。
+
+那个年代没有云计算，没有容器，没有指纹浏览器。只有 XP、只有 IE 6、只有 `ipconfig /all` 和一腔热血。
+
+多年之后，我写了这个工具，专门用来管理浏览器指纹、隔离多个数字身份——这恰恰是当年那个在 XP 前痴迷折腾的少年，梦想中的「黑客工具」。
+
+于是，我把那个开启一切的操作系统界面，作为这个工具永久的外衣。  
+不是因为怀旧，而是一种致敬——  
+**致那扇打开计算机世界的蓝绿色大门。**
+
+---
+
 ### 自定义浏览器指纹信息
 
 ![程序主界面](assets/README/mirage-browser-main-window.png)
@@ -181,6 +199,24 @@ git push origin v1.0.0
 
 ---
 
+## 💾 為什麼選擇 Windows XP 主題？
+
+那是一個撥號上網還要搶時間的年代。
+
+第一次坐在那台方正桌機前，螢幕亮起了熟悉的藍綠色桌面——那朵白雲、那片綠草，Windows XP 預設桌布《Bliss》。就是那一刻，我的電腦世界的大門悄悄開啟了。
+
+後來，我開始學習「駭客技術」——那時還不懂什麼是滲透測試，只是著迷於各種批次腳本、網路掃描工具，以及 BBS 論壇上流傳的各種神秘指令。每一次打開 `cmd.exe`，每一次看到游標在黑色視窗裡閃爍，都覺得自己離某種更深的秘密又近了一步。
+
+那個年代沒有雲端運算，沒有容器，沒有指紋瀏覽器。只有 XP、只有 IE 6、只有 `ipconfig /all` 和滿腔熱血。
+
+多年之後，我寫了這個工具，專門用來管理瀏覽器指紋、隔離多個數位身份——這恰恰是當年那個在 XP 前著迷折騰的少年，夢想中的「駭客工具」。
+
+於是，我把那個開啟一切的作業系統介面，作為這個工具永久的外衣。  
+不是因為懷舊，而是一種致敬——  
+**致那扇開啟電腦世界的藍綠色大門。**
+
+---
+
 ## ✨ 功能特性
 
 ### 🪟 多環境隔離管理
@@ -324,6 +360,24 @@ git push origin v1.0.0
 It launches multiple fully isolated Chrome instances on a single machine — each with its own user data directory, spoofed browser fingerprint, and dedicated proxy — designed for multi-account management, privacy protection, and browser automation.
 
 The UI uses the classic Windows XP retro style via [XP.css](https://github.com/botoxparty/XP.css).
+
+---
+
+## 💾 Why Windows XP?
+
+It was the era when dial-up internet meant racing against the clock.
+
+The first time I sat in front of that old desktop, the screen lit up with the unmistakable teal-green wallpaper — the fluffy clouds, the rolling green hills, that iconic photo called *Bliss*. That was the moment the door to my computing world quietly swung open.
+
+I started learning "hacking" — though back then I had no idea what penetration testing meant. I was just obsessed with batch scripts, network scanners, and the mysterious commands circulating on bulletin boards. Every time I opened `cmd.exe` and watched the cursor blink in that black window, I felt one step closer to some deeper secret.
+
+There was no cloud computing back then. No containers. No fingerprint browsers. Just XP, IE 6, `ipconfig /all`, and boundless curiosity.
+
+Years later, I built this tool — for managing browser fingerprints, isolating multiple digital identities. It's exactly the kind of "hacker tool" that teenage kid hunched over Windows XP once dreamed of.
+
+So I dressed this project in the interface of the OS that started it all.  
+Not out of nostalgia, but as a tribute —  
+**to the teal-green door that opened my computer world.**
 
 ---
 
