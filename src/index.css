@@ -1,0 +1,594 @@
+/* ===== 全局重置 ===== */
+* { box-sizing: border-box; }
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: teal;
+}
+
+/* ===== 主窗口铺满 ===== */
+#main-window {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 标题栏拖拽 */
+#title-bar {
+  -webkit-app-region: drag;
+  flex-shrink: 0;
+  user-select: none;
+  height: 30px;
+}
+.title-bar-controls,
+.title-bar-controls button {
+  -webkit-app-region: no-drag;
+}
+
+/* ===== window-body: flex column ===== */
+#window-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  padding: 0;
+  -webkit-app-region: no-drag;
+}
+
+/* ===== 标签区域布局 ===== */
+#main-tabs-section {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+#main-tabs-section > article[role="tabpanel"] {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+}
+#main-tabs-section > article[role="tabpanel"][hidden] {
+  display: none;
+}
+
+/* ===== 工具栏 ===== */
+.panel-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0 6px;
+  flex-shrink: 0;
+}
+
+/* ===== 内容区 ===== */
+.panel-content {
+  flex: 1;
+  overflow: auto;
+}
+
+/* ===== 表格 ===== */
+.xp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.xp-table th,
+.xp-table td {
+  border: 1px solid #808080;
+  padding: 3px 6px;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.xp-table thead tr {
+  background: #d4d0c8;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.xp-table tbody tr:hover {
+  background: #316ac5;
+  color: white;
+}
+.xp-table tbody tr.selected {
+  background: #316ac5;
+  color: white;
+}
+.xp-table .empty-row td {
+  text-align: center;
+  color: #666;
+  border: none;
+}
+
+/* ===== 表格 Checkbox 优化（覆盖 XP.css） ===== */
+.xp-table th:first-child,
+.xp-table td:first-child {
+  text-align: center;
+  padding: 2px;
+}
+
+/* 让 label 自身成为一个 16×16 容器，取消 XP.css 的 margin-left:19px */
+.xp-table input[type=checkbox] + label {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-left: 0;
+  position: relative;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+/* 覆盖 XP.css 的 left:-19px 并改为现代平面风格 */
+.xp-table input[type=checkbox] + label::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 14px;
+  height: 14px;
+  background: #fff;
+  border: 1px solid #8fa3b8;
+  border-radius: 2px;
+  box-shadow: none;
+}
+.xp-table input[type=checkbox]:checked + label::before {
+  background: #316ac5;
+  border-color: #1a4d8f;
+}
+
+/* 覆盖 XP.css 的 SVG background，改用 CSS 勾号 */
+.xp-table input[type=checkbox]:checked + label::after {
+  content: "";
+  display: block;
+  position: absolute;
+  left: 4px;
+  top: 2px;
+  width: 5px;
+  height: 9px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(42deg);
+  background: none;
+}
+
+/* hover / selected 行上保持可见 */
+.xp-table tbody tr:hover input[type=checkbox] + label::before,
+.xp-table tbody tr.selected input[type=checkbox] + label::before {
+  border-color: rgba(255, 255, 255, 0.65);
+}
+.xp-table tbody tr:hover input[type=checkbox]:checked + label::before,
+.xp-table tbody tr.selected input[type=checkbox]:checked + label::before {
+  background: #5b8de0;
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* 状态指示灯 */
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid #555;
+}
+.status-dot.running { background: #00bb00; }
+.status-dot.stopped { background: #cccccc; }
+
+/* 危险按钮 */
+.btn-danger { color: #cc0000; }
+
+/* 图标按钮（订阅源列表操作列） */
+.btn-icon {
+  padding: 1px 4px;
+  min-width: 22px;
+  font-size: 13px;
+  line-height: 1.2;
+}
+.src-action-cell {
+  white-space: nowrap;
+  width: 76px;
+}
+.node-action-cell {
+  white-space: nowrap;
+  width: 52px;
+}
+
+/* ===== 代理管理 split 布局 ===== */
+.panel-split {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+  overflow: hidden;
+}
+.split-left {
+  width: 400px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.split-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.table-scroll-wrap {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* ===== 脚本面板 ===== */
+.scripts-layout {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+  overflow: hidden;
+}
+.scripts-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #808080;
+  overflow: hidden;
+}
+.scripts-ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+.scripts-ul li {
+  padding: 5px 8px;
+  cursor: pointer;
+  border-bottom: 1px solid #e0e0e0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 12px;
+}
+.scripts-ul li:hover { background: #316ac5; color: white; }
+.scripts-ul li.active { background: #316ac5; color: white; }
+.scripts-editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #808080;
+  overflow: hidden;
+}
+#script-editor {
+  flex: 1;
+  resize: none;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 12px;
+  padding: 6px;
+  border: none;
+  outline: none;
+}
+
+/* ===== 设置面板 ===== */
+.settings-form {
+  width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+}
+.settings-form fieldset {
+  margin-bottom: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.settings-form .field-row {
+  margin-bottom: 6px;
+  gap: 6px;
+  display: flex;
+  align-items: center;
+}
+.settings-form .field-row-stacked input,
+.settings-form .field-row-stacked select,
+.settings-form .field-row-stacked textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ===== 关于面板 ===== */
+#panel-about {
+  overflow: hidden; /* 整页不产生滚动条 */
+}
+.about-panel {
+  width: 100%;
+  padding: 12px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* 覆盖 .panel-content 的 overflow:auto */
+}
+.about-panel fieldset {
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+/* 项目说明：可收缩，内部滚动 */
+.about-panel fieldset.about-desc-fs {
+  flex-shrink: 1;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+/* 开源组件：占满剩余高度，内部滚动 */
+.about-panel fieldset.about-oss-fs {
+  flex: 1;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin-bottom: 0;
+}
+.about-app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+}
+.about-app-info h2 {
+  font-size: 16px;
+}
+.about-readme {
+  padding: 4px 0;
+  line-height: 1.6;
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+.about-readme ul {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+.about-readme li {
+  margin-bottom: 2px;
+  font-size: 12px;
+}
+.about-oss-wrap {
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+.about-oss-table {
+  font-size: 12px;
+}
+.about-oss-table td:nth-child(3) {
+  color: #336;
+  font-family: monospace;
+}
+
+/* ===== 状态栏 ===== */
+.status-bar {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+.status-bar-right {
+  margin-left: auto;
+}
+.status-bar-time {
+  font-family: 'Consolas', 'Courier New', monospace;
+  /* min-width: 60px; */
+  text-align: left;
+}
+.muted { color: #777; font-size: 11px; }
+
+/* ===== Modal ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-window {
+  min-width: 340px;
+  max-width: 700px;
+  width: auto;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+}
+.modal-window .window-body {
+  padding: 12px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+.modal-window .title-bar {
+  height: 30px;
+  min-height: 30px;
+  box-sizing: border-box;
+  cursor: move;
+  user-select: none;
+}
+.modal-window .title-bar-controls,
+.modal-window .title-bar-controls button {
+  cursor: default;
+}
+.modal-form .field-row-stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.modal-form .field-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.modal-form input[type="text"],
+.modal-form input[type="number"],
+.modal-form select,
+.modal-form textarea {
+  width: 100%;
+}
+/* ── 指纹配置区 ── */
+.fp-fieldset {
+  margin-top: 10px;
+  padding: 6px 10px 10px;
+  border: 1px solid #c0c0c0;
+}
+.fp-fieldset legend {
+  padding: 0 4px;
+  font-weight: bold;
+  font-size: 12px;
+}
+/* 快捷预设两行：地区 + 设备 */
+.fp-quick-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #d0d0d0;
+}
+.fp-quick-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.fp-quick-row select {
+  flex: 1;
+  width: auto;
+}
+.fp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 0 12px;
+}
+.fp-ua-row {
+  grid-column: 1 / -1;
+}
+.fp-hint {
+  margin: 6px 0 0;
+  font-size: 11px;
+  color: #888;
+}
+/* 指纹区内 select 全宽 */
+.fp-fieldset select,
+.fp-fieldset input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+/* 快捷预设 select 不受全宽规则影响（由 flex 控制） */
+.fp-quick-row select {
+  width: auto;
+}
+/* 当对话框较小时退回单列 */
+@media (max-width: 700px) {
+  .fp-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 500px) {
+  .fp-grid { grid-template-columns: 1fr; }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 8px;
+  border-top: 1px solid #d0d0d0;
+}
+
+/* ── 名称+备注同行 ── */
+.name-notes-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.name-notes-row > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.name-notes-row input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── 代理设置内联行 ── */
+.proxy-inline {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.proxy-mode-col {
+  min-width: 110px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.proxy-extra-col {
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.proxy-inline label {
+  white-space: nowrap;
+}
+.proxy-inline input,
+.proxy-inline select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ===== Toast ===== */
+#toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 2000;
+  pointer-events: none;
+}
+.toast {
+  background: #222;
+  color: #fff;
+  padding: 8px 14px;
+  font-size: 12px;
+  border: 1px solid #555;
+  opacity: 1;
+  transition: opacity 0.4s;
+  pointer-events: none;
+  max-width: 320px;
+  word-break: break-all;
+}
+.toast.toast-error { background: #8b0000; }
+.toast.toast-success { background: #004d00; }
+.toast.fade-out { opacity: 0; }
+

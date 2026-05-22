@@ -1,0 +1,358 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>幻境浏览器 — Mirage Browser</title>
+  </head>
+  <body>
+    <div class="window" id="main-window">
+      <div class="title-bar" id="title-bar">
+        <div class="title-bar-text" style="display:flex;align-items:center;gap:5px">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16" style="flex-shrink:0;display:block">
+            <defs>
+              <linearGradient id="tl-tb" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#0e3fa0"/>
+                <stop offset="100%" stop-color="#1a72d8"/>
+              </linearGradient>
+            </defs>
+            <!-- 双层浏览器窗口，象征多实例 -->
+            <!-- 后景窗口 -->
+            <rect x="4" y="4" width="11" height="8.5" rx="1.2" fill="#7aaee0"/>
+            <rect x="4" y="4" width="11" height="2.5" rx="1.2" fill="#4a80c0"/>
+            <rect x="4" y="5.5" width="11" height="1" fill="#4a80c0"/>
+            <!-- 前景窗口背景 -->
+            <rect x="1" y="1" width="11" height="8.5" rx="1.2" fill="#eef4ff" stroke="#1a5fc0" stroke-width="1"/>
+            <!-- 前景标题栏 -->
+            <rect x="1" y="1" width="11" height="2.5" rx="1.2" fill="url(#tl-tb)"/>
+            <rect x="1" y="2.5" width="11" height="1" fill="url(#tl-tb)"/>
+            <!-- 关闭按鈕小圆点 -->
+            <circle cx="10.5" cy="2.2" r="1" fill="#e34040"/>
+            <!-- 地址栏 -->
+            <rect x="2" y="5.5" width="9" height="1.5" rx="0.5" fill="white" stroke="#9ab8d8" stroke-width="0.5"/>
+            <!-- 内容条形 -->
+            <rect x="2" y="8" width="6.5" height="0.8" rx="0.3" fill="#b8cce8"/>
+            <rect x="2" y="9.2" width="4.5" height="0.8" rx="0.3" fill="#b8cce8"/>
+          </svg>
+          幻境浏览器
+        </div>
+        <div class="title-bar-controls">
+          <button aria-label="Minimize" id="btn-minimize"></button>
+          <button aria-label="Maximize" id="btn-maximize"></button>
+          <button aria-label="Close"    id="btn-close"></button>
+        </div>
+      </div>
+      <div class="window-body" id="window-body">
+        <section class="tabs" id="main-tabs-section">
+        <menu role="tablist" id="main-tabs">
+          <button role="tab" aria-selected="true" aria-controls="panel-envs">🖥️ 环境管理</button>
+          <button role="tab" aria-controls="panel-proxy">🌐 代理管理</button>
+          <button role="tab" aria-controls="panel-scripts">📜 脚本</button>
+          <button role="tab" aria-controls="panel-settings">⚙️ 设置</button>
+          <button role="tab" aria-controls="panel-about">ℹ️ 关于</button>
+        </menu>
+
+        <!-- 环境管理面板 -->
+        <article role="tabpanel" id="panel-envs">
+          <div class="panel-toolbar" id="envs-toolbar">
+            <button id="btn-create-env">新建环境</button>
+            <input type="text" id="env-search" placeholder="搜索环境名称..." style="width:160px" />
+            <button id="btn-launch-selected">启动选中</button>
+            <button id="btn-close-selected">关闭选中</button>
+            <button id="btn-delete-selected">删除选中</button>
+          </div>
+          <div class="panel-content">
+            <table id="envs-table" class="xp-table">
+              <thead>
+                <tr>
+                  <th style="width:30px"><input type="checkbox" id="chk-all-envs" /><label for="chk-all-envs"></label></th>
+                  <th style="width:40px">#</th>
+                  <th style="width:300px">环境名称</th>
+                  <th>代理</th>
+                  <th style="width:60px">状态</th>
+                  <th style="width:180px">操作</th>
+                </tr>
+              </thead>
+              <tbody id="envs-tbody">
+                <tr class="empty-row"><td colspan="6" style="text-align:center;padding:20px">暂无环境，点击"新建环境"创建</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <!-- 代理管理面板 -->
+        <article role="tabpanel" id="panel-proxy" hidden>
+          <div class="panel-split">
+            <div class="split-left">
+              <div class="panel-toolbar">
+                <strong>订阅源</strong>
+                <button id="btn-add-sub">添加订阅</button>
+                <button id="btn-import-file">导入文件</button>
+              </div>
+              <div class="table-scroll-wrap">
+              <table id="sources-table" class="xp-table">
+                <thead><tr><th>名称</th><th>节点数</th><th>上次更新</th><th>操作</th></tr></thead>
+                <tbody id="sources-tbody">
+                  <tr class="empty-row"><td colspan="4" style="text-align:center;padding:12px">暂无订阅源</td></tr>
+                </tbody>
+              </table>
+              </div>
+            </div>
+            <div class="split-right">
+              <div class="panel-toolbar">
+                <strong id="nodes-source-title">节点列表</strong>
+                <span id="nodes-count" class="muted"></span>
+                <button id="btn-test-all" style="margin-left:auto" disabled>一键测速</button>
+              </div>
+              <div class="table-scroll-wrap">
+              <table id="nodes-table" class="xp-table">
+                <thead><tr><th>名称</th><th>类型</th><th>服务器</th><th>端口</th><th id="nodes-delay-th" style="cursor:pointer;user-select:none">延迟 ⇅</th><th>操作</th></tr></thead>
+                <tbody id="nodes-tbody">
+                  <tr class="empty-row"><td colspan="6" style="text-align:center;padding:12px">选择左侧订阅源查看节点</td></tr>
+                </tbody>
+              </table>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 脚本面板 -->
+        <article role="tabpanel" id="panel-scripts" hidden>
+          <div class="scripts-layout">
+            <div class="scripts-sidebar">
+              <div class="panel-toolbar">
+                <strong>脚本列表</strong>
+                <button id="btn-new-script">新建</button>
+              </div>
+              <ul id="scripts-list" class="scripts-ul" role="listbox"></ul>
+            </div>
+            <div class="scripts-editor">
+              <div class="panel-toolbar" id="script-editor-toolbar" style="display:none">
+                <input type="text" id="script-name-input" placeholder="脚本名称" style="flex:1" />
+                <select id="script-run-env" title="选择运行环境"></select>
+                <button id="btn-run-script">▶ 运行</button>
+                <button id="btn-save-script">保存</button>
+                <button id="btn-delete-script" class="btn-danger">删除</button>
+              </div>
+              <textarea id="script-editor" spellcheck="false" placeholder="选择或新建脚本..."></textarea>
+            </div>
+          </div>
+        </article>
+
+        <!-- 设置面板 -->
+        <article role="tabpanel" id="panel-settings" hidden>
+          <div class="panel-content settings-form">
+            <fieldset>
+              <legend>Chrome 路径</legend>
+              <div class="field-row">
+                <label for="chrome-path">Chrome 可执行文件</label>
+              </div>
+              <div class="field-row">
+                <input type="text" id="chrome-path" style="flex:1" placeholder="自动检测..." />
+                <button id="btn-browse-chrome">浏览...</button>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>浏览器启动</legend>
+              <div class="field-row-stacked">
+                <label for="home-page">首页 URL</label>
+                <input type="text" id="home-page" placeholder="https://www.google.com" />
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>其他配置</legend>
+              <div class="field-row-stacked">
+                <label for="log-level">日志级别</label>
+                <select id="log-level">
+                  <option value="info">INFO</option>
+                  <option value="debug">DEBUG</option>
+                  <option value="warn">WARN</option>
+                  <option value="error">ERROR</option>
+                </select>
+              </div>
+              <div class="field-row-stacked">
+                <label for="subscription-user-agent">订阅更新 User-Agent</label>
+                <select id="subscription-user-agent-preset">
+                  <option value="clash-verge/v2.5.1">clash-verge/v2.5.1（默认）</option>
+                  <option value="v2rayN/6.60">v2rayN/6.60</option>
+                  <option value="v2rayNG/1.9.24">v2rayNG/1.9.24</option>
+                  <option value="V2RayU/4.2.5">V2RayU/4.2.5</option>
+                  <option value="NekoBoxForAndroid/1.3.8">NekoBoxForAndroid/1.3.8</option>
+                  <option value="nekoray/4.0.1">nekoray/4.0.1</option>
+                  <option value="sing-box/1.10.0">sing-box/1.10.0</option>
+                  <option value="ClashMetaForAndroid/2.11.5">ClashMetaForAndroid/2.11.5</option>
+                  <option value="ClashForAndroid/2.5.12">ClashForAndroid/2.5.12</option>
+                  <option value="ClashX/1.118.1">ClashX/1.118.1</option>
+                  <option value="Surfboard/2.24.4">Surfboard/2.24.4</option>
+                  <option value="Shadowrocket/2.2.52">Shadowrocket/2.2.52</option>
+                  <option value="__custom__">自定义（手动输入）</option>
+                </select>
+                <input type="text" id="subscription-user-agent" placeholder="可手动输入任意 User-Agent" />
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Mihomo 管理</legend>
+              <div class="field-row">
+                <span>安装状态：</span>
+                <strong id="mihomo-status-text">检测中...</strong>
+              </div>
+              <div class="field-row" id="mihomo-version-row" style="display:none">
+                <span>当前版本：</span>
+                <span id="mihomo-version">—</span>
+                <span id="mihomo-latest-label" style="margin-left:8px;color:#666"></span>
+              </div>
+              <div class="field-row">
+                <span>存储目录：</span>
+                <span id="mihomo-dir" style="color:#555;word-break:break-all"></span>
+              </div>
+              <div class="field-row" id="mihomo-progress-row" style="display:none">
+                <label>下载进度</label>
+                <progress id="mihomo-progress" max="100" value="0" style="flex:1"></progress>
+                <span id="mihomo-progress-pct">0%</span>
+              </div>
+              <div class="field-row" style="gap:6px;margin-top:6px">
+                <button id="btn-mihomo-check">检查更新</button>
+                <button id="btn-mihomo-download" style="display:none">下载/更新</button>
+                <button id="btn-mihomo-uninstall" style="display:none">卸载</button>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>🔒 根证书管理</legend>
+              <div class="field-row" style="margin-bottom:8px">
+                <span style="color:#555;font-size:11px">导入自定义根证书后，系统将信任该证书，打开的浏览器也将自动信任（macOS 可能需要输入密码授权）。</span>
+              </div>
+              <div class="table-scroll-wrap" style="max-height:160px">
+                <table id="certs-table" class="xp-table">
+                  <thead><tr><th>证书名称</th><th>SHA-256 指纹</th><th>导入时间</th><th>操作</th></tr></thead>
+                  <tbody id="certs-tbody">
+                    <tr class="empty-row"><td colspan="4" style="text-align:center;padding:8px">暂无自定义根证书</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="field-row" style="margin-top:8px">
+                <button id="btn-import-cert">导入证书...</button>
+              </div>
+            </fieldset>
+            <div class="field-row" style="margin-top:16px">
+              <button id="btn-save-settings">保存设置</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- 关于面板 -->
+        <article role="tabpanel" id="panel-about" hidden>
+          <div class="panel-content about-panel">
+            <fieldset>
+              <legend>应用信息</legend>
+              <div class="about-app-header">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="48" height="48">
+                  <defs>
+                    <linearGradient id="ab-tl-tb" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stop-color="#0e3fa0"/>
+                      <stop offset="100%" stop-color="#1a72d8"/>
+                    </linearGradient>
+                  </defs>
+                  <rect x="8" y="8" width="22" height="17" rx="2.4" fill="#7aaee0"/>
+                  <rect x="8" y="8" width="22" height="5" rx="2.4" fill="#4a80c0"/>
+                  <rect x="8" y="11" width="22" height="2" fill="#4a80c0"/>
+                  <rect x="2" y="2" width="22" height="17" rx="2.4" fill="#eef4ff" stroke="#1a5fc0" stroke-width="1.5"/>
+                  <rect x="2" y="2" width="22" height="5" rx="2.4" fill="url(#ab-tl-tb)"/>
+                  <rect x="2" y="5" width="22" height="2" fill="url(#ab-tl-tb)"/>
+                  <circle cx="21" cy="4.5" r="2" fill="#e34040"/>
+                  <rect x="4" y="11" width="18" height="3" rx="1" fill="white" stroke="#9ab8d8" stroke-width="0.8"/>
+                  <rect x="4" y="16" width="13" height="1.5" rx="0.6" fill="#b8cce8"/>
+                  <rect x="4" y="18.5" width="9" height="1.5" rx="0.6" fill="#b8cce8"/>
+                </svg>
+                <div class="about-app-info">
+                  <h2 style="margin:0 0 4px">幻境浏览器 · Mirage Browser</h2>
+                  <p style="margin:0;color:#555">
+                    版本 <span id="about-version">dev version</span>
+                    <span id="about-update-checking" style="margin-left:8px;color:#888;font-size:12px">检查更新中…</span>
+                    <a id="about-update-link" href="#" style="margin-left:8px;display:none" target="_blank">🆕 下载新版</a>
+                  </p>
+                  <p style="margin:4px 0 0;color:#555">多开浏览器环境管理工具，支持指纹隔离、代理配置与脚本注入。</p>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="about-desc-fs">
+              <legend>项目说明</legend>
+              <div class="about-readme">
+                <p>本工具用于管理多个相互隔离的 Chrome 浏览器实例，每个实例独立维护：</p>
+                <ul>
+                  <li>浏览器指纹（User-Agent、Canvas、WebGL、语言、时区等）</li>
+                  <li>代理网络（支持 HTTP/SOCKS5 直连与 Mihomo 订阅）</li>
+                  <li>独立用户数据目录，Cookie / localStorage 完全隔离</li>
+                  <li>自动化脚本注入（CDP 协议）</li>
+                </ul>
+                <p style="margin-top:8px">指纹检测参考：</p>
+                <ul>
+                  <li>https://scrapfly.io/web-scraping-tools/gpu-fingerprint</li>
+                  <li>https://github.com/mumuy/browser/</li>
+                  <li>https://browseris.com/</li>
+                  <li>https://passer-by.com/browser/</li>
+                </ul>
+              </div>
+            </fieldset>
+
+            <fieldset class="about-oss-fs">
+              <legend>开源组件</legend>
+              <div class="about-oss-wrap"><table class="xp-table about-oss-table">
+                <thead>
+                  <tr>
+                    <th>组件</th>
+                    <th>版本</th>
+                    <th>开源协议</th>
+                    <th>用途</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><strong>Electron</strong></td><td>42.x</td><td>MIT</td><td>跨平台桌面应用框架</td></tr>
+                  <tr><td><strong>Vite</strong></td><td>5.x</td><td>MIT</td><td>前端构建工具</td></tr>
+                  <tr><td><strong>TypeScript</strong></td><td>4.5.x</td><td>Apache-2.0</td><td>类型安全的 JavaScript 超集</td></tr>
+                  <tr><td><strong>xp.css</strong></td><td>0.2.x</td><td>MIT</td><td>Windows XP 复古风格 UI 库</td></tr>
+                  <tr><td><strong>js-yaml</strong></td><td>4.x</td><td>MIT</td><td>YAML 解析（Mihomo 配置）</td></tr>
+                  <tr><td><strong>ws</strong></td><td>8.x</td><td>MIT</td><td>WebSocket 服务（CDP 中转）</td></tr>
+                  <tr><td><strong>Electron Forge</strong></td><td>7.x</td><td>MIT</td><td>Electron 打包与分发工具链</td></tr>
+                  <tr><td><strong>ESLint</strong></td><td>8.x</td><td>MIT</td><td>代码静态检查</td></tr>
+                  <tr><td><strong>electron-squirrel-startup</strong></td><td>1.x</td><td>MIT</td><td>Windows 安装器生命周期处理</td></tr>
+                </tbody>
+              </table>
+            </fieldset>
+          </div>
+        </article>
+
+        </section>
+
+        <!-- 状态栏 -->
+        <div class="status-bar" id="status-bar">
+          <p class="status-bar-field status-bar-time" id="status-time">00:00:00</p>
+          <p class="status-bar-field" id="status-version">dev version</p>
+          <p class="status-bar-field" id="status-running">运行中: 0</p>
+          <p class="status-bar-field" id="status-total">环境总数: 0</p>
+          <p class="status-bar-field" id="status-msg">就绪</p>
+          <p class="status-bar-field status-bar-right" id="status-subs">订阅: 0</p>
+          <p class="status-bar-field" id="status-nodes">节点: 0</p>
+          <p class="status-bar-field" id="status-scripts">脚本: 0</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 通用 Modal 容器 -->
+    <div id="modal-overlay" class="modal-overlay" style="display:none">
+      <div class="window modal-window" id="modal-window">
+        <div class="title-bar">
+          <div class="title-bar-text" id="modal-title">对话框</div>
+          <div class="title-bar-controls">
+            <button aria-label="Close" id="modal-close-btn"></button>
+          </div>
+        </div>
+        <div class="window-body" id="modal-body"></div>
+      </div>
+    </div>
+
+    <!-- Toast 容器 -->
+    <div id="toast-container"></div>
+
+    <script type="module" src="/src/renderer.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Mirage Browser icon">
+  <defs>
+    <linearGradient id="titleBarGradient" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0e3fa0"/>
+      <stop offset="100%" stop-color="#1a72d8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Back window -->
+  <rect x="88" y="76" width="144" height="112" rx="14" fill="#7aaee0"/>
+  <rect x="88" y="76" width="144" height="34" rx="14" fill="#4a80c0"/>
+  <rect x="88" y="98" width="144" height="12" fill="#4a80c0"/>
+
+  <!-- Front window -->
+  <rect x="24" y="24" width="144" height="112" rx="14" fill="#eef4ff" stroke="#1a5fc0" stroke-width="8"/>
+  <rect x="24" y="24" width="144" height="34" rx="14" fill="url(#titleBarGradient)"/>
+  <rect x="24" y="46" width="144" height="12" fill="url(#titleBarGradient)"/>
+
+  <!-- Close button -->
+  <circle cx="146" cy="40" r="11" fill="#e34040"/>
+
+  <!-- Address bar + content lines -->
+  <rect x="40" y="84" width="112" height="18" rx="6" fill="#ffffff" stroke="#9ab8d8" stroke-width="3"/>
+  <rect x="40" y="112" width="80" height="8" rx="3" fill="#b8cce8"/>
+  <rect x="40" y="126" width="56" height="8" rx="3" fill="#b8cce8"/>
+</svg>
