@@ -37,6 +37,7 @@ describe('buildProxyArgs', () => {
     expect(args).toEqual([
       '--proxy-server=socks5://127.0.0.1:41234',
       '--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE localhost , EXCLUDE 127.0.0.1',
+      '--test-type',
       ...LEAK_PROTECTION_ARGS,
     ]);
   });

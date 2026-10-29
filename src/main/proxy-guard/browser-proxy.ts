@@ -68,6 +68,9 @@ export function buildProxyArgs(proxy: BrowserProxy): string[] {
     // 禁止本机 DNS 解析：域名一律交给代理远程解析，只放行代理服务器自身。
     // MAP * 对 IP 字面量同样生效，因此代理地址无论是 IP 还是域名都必须放行，否则浏览器连不上代理
     `--host-resolver-rules=${['MAP * ~NOTFOUND', ...excluded.map(h => `EXCLUDE ${h}`)].join(' , ')}`,
+    // host-resolver-rules 属于 Chrome 的「不受支持的命令行参数」，会弹出稳定性警告栏；
+    // --test-type 只抑制该警告栏（与 chromedriver 做法一致），不影响上面的 DNS 防泄漏规则
+    '--test-type',
     ...LEAK_PROTECTION_ARGS,
   ];
 }
