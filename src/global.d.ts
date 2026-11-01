@@ -15,6 +15,7 @@ declare global {
       // Settings
       settingsGet(): Promise<AppConfig>;
       settingsSave(config: AppConfig): Promise<void>;
+      rulesSave(rules: Pick<AppConfig, 'geoRules' | 'timezoneRules'>): Promise<AppConfig>;
       // Environments
       envList(): Promise<Environment[]>;
       envCreate(data: { name: string; count?: number; homePage?: string; fpOverride?: import('./types').FingerprintOverride; notes?: string; proxyMode?: '' | 'simple' | 'mihomo'; proxySimple?: string; proxySourceId?: string; proxyNodeId?: string }): Promise<Environment | Environment[]>;

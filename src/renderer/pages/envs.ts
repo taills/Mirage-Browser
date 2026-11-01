@@ -23,6 +23,15 @@ const TIMEZONE_OPTIONS: Array<{ value: string; label: string }> = [
   { value: 'Europe/Berlin',    label: '🇩🇪 德国时间 (UTC+1/+2)' },
   { value: 'Europe/Moscow',    label: '🇷🇺 莫斯科时间 (UTC+3)' },
   { value: 'Australia/Sydney', label: '🇦🇺 澳大利亚东部 (UTC+10/+11)' },
+  { value: 'Asia/Dubai', label: '🇦🇪 迪拜 (UTC+4)' },
+  { value: 'Asia/Kolkata', label: '🇮🇳 印度 (UTC+5:30)' },
+  { value: 'Asia/Jakarta', label: '🇮🇩 雅加达 (UTC+7)' },
+  { value: 'Asia/Kathmandu', label: '🇳🇵 加德满都 (UTC+5:45)' },
+  { value: 'America/Toronto', label: '🇨🇦 多伦多 (UTC-5/-4)' },
+  { value: 'America/Vancouver', label: '🇨🇦 温哥华 (UTC-8/-7)' },
+  { value: 'America/Mexico_City', label: '🇲🇽 墨西哥城 (UTC-6/-5)' },
+  { value: 'America/Sao_Paulo', label: '🇧🇷 圣保罗 (UTC-3)' },
+  { value: 'Europe/Rome', label: '🇮🇹 罗马 (UTC+1/+2)' },
 ];
 
 const LANGUAGE_OPTIONS: Array<{ value: string; label: string }> = [
@@ -590,11 +599,21 @@ async function editEnv(id: string): Promise<void> {
   if (!env) return;
 
   const fp = env.fingerprint;
+  const rules = await api.settingsGet();
+  const timezoneRules = rules.timezoneRules ?? TIMEZONE_OPTIONS.filter(option => option.value).map(option => ({ id: option.value, name: option.label, timezoneId: option.value, builtin: true }));
+  const geoRules = rules.geoRules ?? GEO_OPTIONS.filter(option => option.value).map(option => {
+    const coords = GEO_PRESET_COORD_MAP[option.value];
+    return { id: option.value, name: option.label, latitude: coords.lat, longitude: coords.lon, builtin: true };
+  });
 
   // Determine current UA preset match (or 'custom')
   const uaPresetMatch = UA_OPTIONS.find(o => o.value === env.userAgent);
   const currentUaValue = uaPresetMatch ? env.userAgent : '__custom__';
-  const currentGeoValue = inferGeoPresetByCoords(fp.latitude, fp.longitude);
+  const nearestGeo = geoRules.reduce((best, rule) => {
+    const distance = Math.hypot(fp.latitude - rule.latitude, fp.longitude - rule.longitude);
+    return distance < best.distance ? { id: rule.id, distance } : best;
+  }, { id: '', distance: Infinity });
+  const currentGeoValue = nearestGeo.distance <= 0.15 ? nearestGeo.id : '';
   const currentGpuPresetEntry = Object.entries(GPU_PRESET_MAP).find(([, preset]) =>
     preset.vendor === (fp.gpuVendor ?? '') && preset.renderer === (fp.gpuRenderer ?? ''),
   );
@@ -642,7 +661,7 @@ async function editEnv(id: string): Promise<void> {
         <div class="fp-grid">
           <div class="field-row-stacked">
             <label>时区</label>
-            ${buildSelectHtml('m-timezone', TIMEZONE_OPTIONS, fp.timezone)}
+            ${buildSelectHtml('m-timezone', [...timezoneRules.map(rule => ({ value: rule.timezoneId, label: rule.name })), ...(!timezoneRules.some(rule => rule.timezoneId === fp.timezone) ? [{ value: fp.timezone, label: `当前值 (${fp.timezone})` }] : [])], fp.timezone)}
           </div>
           <div class="field-row-stacked">
             <label>语言</label>
@@ -650,7 +669,7 @@ async function editEnv(id: string): Promise<void> {
           </div>
           <div class="field-row-stacked">
             <label>地区 / 地理位置</label>
-            ${buildSelectHtml('m-geo', GEO_OPTIONS, currentGeoValue)}
+            ${buildSelectHtml('m-geo', [...geoRules.map(rule => ({ value: rule.id, label: rule.name })), ...(!currentGeoValue ? [{ value: '__keep__', label: '保持当前坐标' }] : [])], currentGeoValue || '__keep__')}
           </div>
           <div class="field-row-stacked">
             <label>屏幕分辨率</label>
@@ -790,10 +809,10 @@ async function editEnv(id: string): Promise<void> {
       const newFp = { ...env.fingerprint };
       if (fpOv.timezone)   newFp.timezone = fpOv.timezone;
       if (fpOv.language)   newFp.language = fpOv.language;
-      if (fpOv.geoPreset && GEO_PRESET_COORD_MAP[fpOv.geoPreset]) {
-        const geo = GEO_PRESET_COORD_MAP[fpOv.geoPreset];
-        newFp.latitude = geo.lat;
-        newFp.longitude = geo.lon;
+      const selectedGeo = geoRules.find(rule => rule.id === fpOv.geoPreset);
+      if (selectedGeo) {
+        newFp.latitude = selectedGeo.latitude;
+        newFp.longitude = selectedGeo.longitude;
       }
       if (fpOv.screenPreset) {
         const [w, h] = fpOv.screenPreset.split('x').map(Number);
@@ -839,6 +858,9 @@ export async function showCreateEnvDialog(): Promise<void> {
     proxyMode: '' | 'simple' | 'mihomo'; proxySimple: string; proxySourceId: string; proxyNodeId: string;
   }
   const proxySources = await api.proxySources();
+  const config = await api.settingsGet();
+  const timezoneRules = config.timezoneRules ?? TIMEZONE_OPTIONS.filter(o => o.value).map(o => ({ id: o.value, name: o.label, timezoneId: o.value }));
+  const geoRules = config.geoRules ?? GEO_OPTIONS.filter(o => o.value).map(o => { const c = GEO_PRESET_COORD_MAP[o.value]; return { id: o.value, name: o.label, latitude: c.lat, longitude: c.lon }; });
   const result = await showModal<CreateData>('新建环境', (body, resolve) => {
     body.innerHTML = `<div class="modal-form">
       <div class="name-notes-row">
@@ -878,7 +900,7 @@ export async function showCreateEnvDialog(): Promise<void> {
         <div class="fp-grid">
           <div class="field-row-stacked">
             <label>时区</label>
-            ${buildSelectHtml('m-timezone', TIMEZONE_OPTIONS)}
+            ${buildSelectHtml('m-timezone', [{ value: '', label: '🎲 随机' }, ...timezoneRules.map(rule => ({ value: rule.timezoneId, label: rule.name }))])}
           </div>
           <div class="field-row-stacked">
             <label>语言</label>
@@ -886,7 +908,7 @@ export async function showCreateEnvDialog(): Promise<void> {
           </div>
           <div class="field-row-stacked">
             <label>地区 / 地理位置</label>
-            ${buildSelectHtml('m-geo', GEO_OPTIONS)}
+            ${buildSelectHtml('m-geo', [{ value: '', label: '🎲 随机' }, ...geoRules.map(rule => ({ value: rule.id, label: rule.name }))])}
           </div>
           <div class="field-row-stacked">
             <label>屏幕分辨率</label>

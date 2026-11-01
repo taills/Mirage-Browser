@@ -1,4 +1,5 @@
 import { toast } from '../toast';
+import { parseGoogleMapsUrl } from '../../shared/google-maps';
 
 const api = window.api;
 
@@ -39,6 +40,63 @@ export async function init(): Promise<void> {
   const CUSTOM_USER_AGENT_PRESET = '__custom__';
 
   const config = await api.settingsGet();
+  let geoRules = config.geoRules ?? [];
+  let timezoneRules = config.timezoneRules ?? [];
+  const escapeRuleHtml = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const renderRules = (): void => {
+    document.getElementById('geo-rules-tbody')!.innerHTML = geoRules.map(rule => `<tr><td>${escapeRuleHtml(rule.name)}</td><td>${rule.latitude}</td><td>${rule.longitude}</td><td>${rule.builtin ? '内置' : `<button data-geo-edit="${escapeRuleHtml(rule.id)}">编辑</button> <button data-geo-delete="${escapeRuleHtml(rule.id)}">删除</button>`}</td></tr>`).join('');
+    document.getElementById('timezone-rules-tbody')!.innerHTML = timezoneRules.map(rule => `<tr><td>${escapeRuleHtml(rule.name)}</td><td>${escapeRuleHtml(rule.timezoneId)}</td><td>${rule.builtin ? '内置' : `<button data-tz-edit="${escapeRuleHtml(rule.id)}">编辑</button> <button data-tz-delete="${escapeRuleHtml(rule.id)}">删除</button>`}</td></tr>`).join('');
+    document.querySelectorAll<HTMLButtonElement>('[data-geo-edit]').forEach(button => button.addEventListener('click', async () => {
+      const rule = geoRules.find(item => item.id === button.dataset['geoEdit']); if (!rule) return;
+      const name = prompt('地区名称', rule.name); if (!name?.trim()) return;
+      const latitude = Number(prompt('纬度 (-90 到 90)', String(rule.latitude)));
+      const longitude = Number(prompt('经度 (-180 到 180)', String(rule.longitude)));
+      if (!Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) { toast('经纬度范围无效', 'error'); return; }
+      geoRules = geoRules.map(item => item.id === rule.id ? { ...item, name: name.trim(), latitude, longitude } : item); await saveRules();
+    }));
+    document.querySelectorAll<HTMLButtonElement>('[data-geo-delete]').forEach(button => button.addEventListener('click', async () => { geoRules = geoRules.filter(item => item.id !== button.dataset['geoDelete']); await saveRules(); }));
+    document.querySelectorAll<HTMLButtonElement>('[data-tz-edit]').forEach(button => button.addEventListener('click', async () => {
+      const rule = timezoneRules.find(item => item.id === button.dataset['tzEdit']); if (!rule) return;
+      const name = prompt('显示名称', rule.name); if (!name?.trim()) return;
+      const timezoneId = prompt('IANA 时区 ID', rule.timezoneId); if (!timezoneId?.trim()) return;
+      try { new Intl.DateTimeFormat('en', { timeZone: timezoneId.trim() }); } catch { toast('无效的 IANA 时区 ID', 'error'); return; }
+      timezoneRules = timezoneRules.map(item => item.id === rule.id ? { ...item, name: name.trim(), timezoneId: timezoneId.trim() } : item); await saveRules();
+    }));
+    document.querySelectorAll<HTMLButtonElement>('[data-tz-delete]').forEach(button => button.addEventListener('click', async () => { timezoneRules = timezoneRules.filter(item => item.id !== button.dataset['tzDelete']); await saveRules(); }));
+  };
+  const saveRules = async (): Promise<void> => {
+    const saved = await api.rulesSave({ geoRules, timezoneRules });
+    geoRules = saved.geoRules ?? geoRules;
+    timezoneRules = saved.timezoneRules ?? timezoneRules;
+    config.geoRules = geoRules;
+    config.timezoneRules = timezoneRules;
+    renderRules();
+    toast('规则已保存', 'success');
+  };
+  document.getElementById('btn-geo-map-import')!.addEventListener('click', () => {
+    const url = (document.getElementById('geo-rule-map-url') as HTMLInputElement).value;
+    const coordinates = parseGoogleMapsUrl(url);
+    if (!coordinates) { toast('无法从该链接识别有效的 Google Maps 经纬度', 'error'); return; }
+    (document.getElementById('geo-rule-lat') as HTMLInputElement).value = String(coordinates.latitude);
+    (document.getElementById('geo-rule-lon') as HTMLInputElement).value = String(coordinates.longitude);
+    if (coordinates.name) (document.getElementById('geo-rule-name') as HTMLInputElement).value = coordinates.name;
+    toast(`已导入坐标：${coordinates.latitude}, ${coordinates.longitude}`, 'success');
+  });
+  document.getElementById('btn-geo-rule-add')!.addEventListener('click', async () => {
+    const name = (document.getElementById('geo-rule-name') as HTMLInputElement).value.trim();
+    const latitude = Number((document.getElementById('geo-rule-lat') as HTMLInputElement).value);
+    const longitude = Number((document.getElementById('geo-rule-lon') as HTMLInputElement).value);
+    if (!name || !Number.isFinite(latitude) || latitude < -90 || latitude > 90 || !Number.isFinite(longitude) || longitude < -180 || longitude > 180) { toast('请填写名称及有效的经纬度', 'error'); return; }
+    geoRules.push({ id: `custom-geo-${crypto.randomUUID()}`, name, latitude, longitude }); await saveRules();
+  });
+  document.getElementById('btn-timezone-rule-add')!.addEventListener('click', async () => {
+    const name = (document.getElementById('timezone-rule-name') as HTMLInputElement).value.trim();
+    const timezoneId = (document.getElementById('timezone-rule-id') as HTMLInputElement).value.trim();
+    if (!name || !timezoneId) { toast('请填写显示名称和 IANA 时区 ID', 'error'); return; }
+    try { new Intl.DateTimeFormat('en', { timeZone: timezoneId }); } catch { toast('无效的 IANA 时区 ID', 'error'); return; }
+    timezoneRules.push({ id: `custom-tz-${crypto.randomUUID()}`, name, timezoneId }); await saveRules();
+  });
+  renderRules();
 
   const chromePath = document.getElementById('chrome-path') as HTMLInputElement;
   const logLevel = document.getElementById('log-level') as HTMLSelectElement;
@@ -83,6 +141,8 @@ export async function init(): Promise<void> {
       logLevel: logLevel.value as 'debug' | 'info' | 'warn' | 'error',
       homePage: homePage.value.trim(),
       subscriptionUserAgent: subscriptionUserAgent.value.trim() || DEFAULT_SUBSCRIPTION_USER_AGENT,
+      geoRules,
+      timezoneRules,
     });
     toast('设置已保存', 'success');
   });

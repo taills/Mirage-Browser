@@ -68,7 +68,24 @@ export interface ProxyNode {
   delay?: number;
 }
 
+export interface GeoRule {
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  builtin?: boolean;
+}
+
+export interface TimezoneRule {
+  id: string;
+  name: string;
+  timezoneId: string;
+  builtin?: boolean;
+}
+
 export interface AppConfig {
+  geoRules?: GeoRule[];
+  timezoneRules?: TimezoneRule[];
   chromePath: string;
   mihomoPath: string;
   logLevel: string;
@@ -109,7 +126,9 @@ export interface EnvRuntime {
 export interface FingerprintOverride {
   timezone?: string;
   language?: string;
-  /** 地区预设 key，例如 "Shanghai" */
+  geoLatitude?: number;
+  geoLongitude?: number;
+  /** 地区规则 ID */
   geoPreset?: string;
   userAgent?: string;
   /** 硬件并发数 */

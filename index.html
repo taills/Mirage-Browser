@@ -192,6 +192,19 @@
               </div>
             </fieldset>
             <fieldset>
+              <legend>🌍 地区与时区规则</legend>
+              <p style="color:#666;font-size:11px">内置规则不可修改或删除；自定义规则可新增、编辑和删除。地区规则使用经纬度提供浏览器定位。</p>
+              <div class="field-row" style="gap:8px;align-items:flex-start">
+                <div style="flex:1"><h4>地区 / 经纬度</h4><table class="xp-table" style="width:100%"><thead><tr><th>名称</th><th>纬度</th><th>经度</th><th>操作</th></tr></thead><tbody id="geo-rules-tbody"></tbody></table>
+                  <div class="field-row"><input id="geo-rule-name" placeholder="地区名称"/><input id="geo-rule-lat" type="number" step="any" placeholder="纬度"/><input id="geo-rule-lon" type="number" step="any" placeholder="经度"/><button id="btn-geo-rule-add">添加</button></div>
+                  <div class="field-row"><input id="geo-rule-map-url" type="url" style="flex:1" placeholder="粘贴 Google Maps URL"/><button id="btn-geo-map-import">导入坐标</button></div>
+                </div>
+                <div style="flex:1"><h4>时区</h4><table class="xp-table" style="width:100%"><thead><tr><th>显示名称</th><th>IANA 时区 ID</th><th>操作</th></tr></thead><tbody id="timezone-rules-tbody"></tbody></table>
+                  <div class="field-row"><input id="timezone-rule-name" placeholder="显示名称"/><input id="timezone-rule-id" placeholder="IANA ID，如 Europe/Rome"/><button id="btn-timezone-rule-add">添加</button></div>
+                </div>
+              </div>
+            </fieldset>
+            <fieldset>
               <legend>Mihomo 管理</legend>
               <div class="field-row">
                 <span>安装状态：</span>

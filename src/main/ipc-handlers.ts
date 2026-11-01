@@ -40,6 +40,16 @@ export function registerHandlers(): void {
   });
 
   ipcMain.handle('settings:save', (_e, config: AppConfig) => store.saveConfig(config));
+  ipcMain.handle('rules:save', (_e, rules: Pick<AppConfig, 'geoRules' | 'timezoneRules'>) => {
+    const current = store.getConfig();
+    const builtinGeo = (current.geoRules ?? []).filter(rule => rule.builtin);
+    const builtinTimezone = (current.timezoneRules ?? []).filter(rule => rule.builtin);
+    return store.saveConfig({
+      ...current,
+      geoRules: [...builtinGeo, ...(rules.geoRules ?? []).filter(rule => !rule.builtin)],
+      timezoneRules: [...builtinTimezone, ...(rules.timezoneRules ?? []).filter(rule => !rule.builtin)],
+    });
+  });
 
 
   // ── Environments ────────────────────────────────────────
@@ -53,7 +63,8 @@ export function registerHandlers(): void {
       let userAgent   = generateUserAgent();
 
       if (data.fpOverride && Object.values(data.fpOverride).some(v => v !== '' && v !== undefined)) {
-        const res = generateFingerprintWithOverride(data.fpOverride);
+        const config = store.getConfig();
+        const res = generateFingerprintWithOverride(data.fpOverride, config.geoRules?.map(rule => ({ id: rule.id, latitude: rule.latitude, longitude: rule.longitude })));
         fingerprint = res.fingerprint;
         userAgent   = res.userAgent;
       }

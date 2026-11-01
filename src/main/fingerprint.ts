@@ -138,6 +138,7 @@ export function generateFingerprint(): FingerprintConfig {
 /** 生成指纹，并按 override 字段覆盖指定值（空字符串 / undefined 表示随机） */
 export function generateFingerprintWithOverride(
   override: FingerprintOverride,
+  geoRules: Array<{ id: string; latitude: number; longitude: number }> = Object.entries(GEO_PRESET_MAP).map(([id, p]) => ({ id, latitude: p.lat, longitude: p.lon })),
 ): { fingerprint: FingerprintConfig; userAgent: string } {
   const base = generateFingerprint();
   let ua = generateUserAgent();
@@ -145,10 +146,13 @@ export function generateFingerprintWithOverride(
   if (override.timezone) base.timezone = override.timezone;
   if (override.language) base.language = override.language;
 
-  if (override.geoPreset && GEO_PRESET_MAP[override.geoPreset]) {
-    const geo = GEO_PRESET_MAP[override.geoPreset];
-    base.latitude  = geo.lat + (Math.random() - 0.5) * 0.1;
-    base.longitude = geo.lon + (Math.random() - 0.5) * 0.1;
+  const geoRule = geoRules.find(rule => rule.id === override.geoPreset);
+  if (geoRule) {
+    base.latitude  = geoRule.latitude + (Math.random() - 0.5) * 0.1;
+    base.longitude = geoRule.longitude + (Math.random() - 0.5) * 0.1;
+  } else if (Number.isFinite(override.geoLatitude) && Number.isFinite(override.geoLongitude)) {
+    base.latitude = override.geoLatitude!;
+    base.longitude = override.geoLongitude!;
   }
 
   if (override.userAgent) ua = override.userAgent;

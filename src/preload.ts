@@ -22,6 +22,7 @@ contextBridge.exposeInMainWorld('api', {
   // Settings
   settingsGet: (): Promise<AppConfig> => ipcRenderer.invoke('settings:get'),
   settingsSave: (config: AppConfig): Promise<void> => ipcRenderer.invoke('settings:save', config),
+  rulesSave: (rules: Pick<AppConfig, 'geoRules' | 'timezoneRules'>): Promise<AppConfig> => ipcRenderer.invoke('rules:save', rules),
 
   // Environments
   envList: (): Promise<Environment[]> => ipcRenderer.invoke('env:list'),
