@@ -17,7 +17,7 @@ jobs:
             platform: darwin
           - os: windows-latest
             platform: win32
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             platform: linux
 
     runs-on: ${{ matrix.os }}
@@ -29,11 +29,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Install dependencies (Linux)
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-24.04'
         run: |
           sudo apt-get update
           sudo apt-get install -y rpm fakeroot dpkg
